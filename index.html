@@ -3,22 +3,22 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>WiFi Messages</title>
+  <title>VOID CHAT</title>
   <style>
     :root {
-      color-scheme: light;
-      --ink: #17211b;
-      --muted: #68736c;
-      --line: #d9e1dc;
-      --paper: #f7f8f5;
-      --panel: #ffffff;
-      --green: #27b264;
-      --grey: #a8b0aa;
-      --blue: #276ef1;
-      --blue-dark: #1d55bb;
-      --amber: #f5b84b;
-      --rose: #d84c6f;
-      --shadow: 0 12px 35px rgba(27, 38, 31, .12);
+      color-scheme: dark;
+      --ink: #f1f6ff;
+      --muted: #a7b0ba;
+      --line: rgba(228, 241, 255, .14);
+      --paper: #020406;
+      --panel: rgba(17, 20, 27, .88);
+      --green: #cbff6e;
+      --grey: #6f7781;
+      --blue: #a6ecff;
+      --blue-dark: #7fdaf1;
+      --amber: #dcff76;
+      --rose: #ff5f82;
+      --shadow: 0 18px 50px rgba(0, 0, 0, .5);
     }
 
     * {
@@ -31,8 +31,38 @@
       font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       color: var(--ink);
       background:
-        linear-gradient(120deg, rgba(39, 110, 241, .08), rgba(39, 178, 100, .08)),
+        radial-gradient(circle at 18% 20%, rgba(166, 236, 255, .17), transparent 32%),
+        radial-gradient(circle at 82% 58%, rgba(203, 255, 110, .12), transparent 34%),
+        radial-gradient(circle at 48% 110%, rgba(166, 236, 255, .08), transparent 30%),
+        linear-gradient(115deg, rgba(18, 31, 38, .92), rgba(0, 0, 0, .96) 48%, rgba(7, 10, 4, .95)),
         var(--paper);
+      overflow-x: hidden;
+    }
+
+    body::before,
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    body::before {
+      opacity: .56;
+      background-image:
+        radial-gradient(circle, rgba(255, 255, 255, .78) 0 1px, transparent 1.5px),
+        radial-gradient(circle, rgba(255, 255, 255, .36) 0 1px, transparent 1.5px);
+      background-position: 0 0, 22px 38px;
+      background-size: 78px 78px, 118px 118px;
+    }
+
+    body::after {
+      background:
+        linear-gradient(90deg, rgba(255, 255, 255, .04), transparent 18%, transparent 82%, rgba(255, 255, 255, .035)),
+        repeating-linear-gradient(0deg, rgba(255, 255, 255, .025) 0 1px, transparent 1px 4px);
+      mix-blend-mode: screen;
+      opacity: .35;
     }
 
     button,
@@ -50,6 +80,8 @@
       display: grid;
       grid-template-columns: 330px minmax(0, 1fr);
       min-height: 100vh;
+      position: relative;
+      z-index: 1;
     }
 
     .sidebar {
@@ -57,31 +89,35 @@
       flex-direction: column;
       min-height: 100vh;
       border-right: 1px solid var(--line);
-      background: rgba(255, 255, 255, .82);
-      backdrop-filter: blur(16px);
+      background: rgba(10, 12, 18, .74);
+      backdrop-filter: blur(18px);
+      box-shadow: inset -1px 0 0 rgba(255, 255, 255, .04);
     }
 
     .profile {
-      padding: 22px;
+      padding: 24px 22px 22px;
       border-bottom: 1px solid var(--line);
     }
 
     .brand {
       display: flex;
       align-items: center;
-      gap: 10px;
-      margin-bottom: 18px;
+      gap: 13px;
+      margin-bottom: 20px;
     }
 
     .brand-mark {
       display: grid;
       place-items: center;
-      width: 38px;
-      height: 38px;
-      border-radius: 8px;
-      color: #fff;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      color: transparent;
       font-weight: 800;
-      background: linear-gradient(135deg, var(--blue), var(--green));
+      background:
+        radial-gradient(circle at 55% 52%, rgba(255, 255, 255, .04) 0 51%, transparent 52%),
+        linear-gradient(135deg, rgba(255, 255, 255, .98), rgba(166, 236, 255, .36));
+      box-shadow: 0 0 25px rgba(166, 236, 255, .42), inset 0 0 0 2px rgba(255, 255, 255, .45);
     }
 
     h1,
@@ -92,8 +128,11 @@
     }
 
     h1 {
-      font-size: 1.25rem;
+      font-size: 2rem;
+      font-weight: 950;
       letter-spacing: 0;
+      line-height: .95;
+      text-shadow: 0 0 18px rgba(166, 236, 255, .38);
     }
 
     .small {
@@ -122,8 +161,9 @@
       border: 1px solid var(--line);
       border-radius: 8px;
       color: var(--ink);
-      background: #fff;
+      background: rgba(15, 17, 23, .9);
       outline: none;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, .04);
     }
 
     input {
@@ -139,8 +179,8 @@
 
     input:focus,
     textarea:focus {
-      border-color: rgba(39, 110, 241, .75);
-      box-shadow: 0 0 0 3px rgba(39, 110, 241, .15);
+      border-color: rgba(166, 236, 255, .85);
+      box-shadow: 0 0 0 3px rgba(166, 236, 255, .16), 0 0 20px rgba(166, 236, 255, .15);
     }
 
     .id-row {
@@ -161,11 +201,12 @@
       height: 42px;
       border-radius: 8px;
       color: var(--ink);
-      background: #edf2ef;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, .08);
     }
 
     .icon-button:hover {
-      background: #e1e9e5;
+      background: rgba(166, 236, 255, .14);
     }
 
     .contacts-head {
@@ -197,22 +238,23 @@
     }
 
     .primary {
-      color: #fff;
-      background: var(--blue);
+      color: #020406;
+      background: linear-gradient(90deg, var(--blue), var(--green));
+      box-shadow: 0 0 22px rgba(203, 255, 110, .18);
     }
 
     .primary:hover {
-      background: var(--blue-dark);
+      background: linear-gradient(90deg, var(--blue-dark), #dbff85);
     }
 
     .secondary {
       color: var(--ink);
       border: 1px solid var(--line);
-      background: #fff;
+      background: rgba(255, 255, 255, .08);
     }
 
     .secondary:hover {
-      background: #f0f4f2;
+      background: rgba(255, 255, 255, .14);
     }
 
     .danger {
@@ -242,7 +284,7 @@
 
     .contact:hover,
     .contact.active {
-      background: #edf2ef;
+      background: rgba(166, 236, 255, .12);
     }
 
     .avatar {
@@ -253,7 +295,8 @@
       border-radius: 8px;
       color: #fff;
       font-weight: 900;
-      background: #2f6f6a;
+      background: linear-gradient(135deg, rgba(166, 236, 255, .95), rgba(203, 255, 110, .8));
+      color: #050608;
     }
 
     .contact-main {
@@ -281,12 +324,12 @@
       height: 10px;
       border-radius: 50%;
       background: var(--grey);
-      box-shadow: 0 0 0 3px rgba(168, 176, 170, .18);
+      box-shadow: 0 0 0 3px rgba(168, 176, 170, .16);
     }
 
     .dot.online {
       background: var(--green);
-      box-shadow: 0 0 0 3px rgba(39, 178, 100, .18);
+      box-shadow: 0 0 0 3px rgba(203, 255, 110, .18), 0 0 14px rgba(203, 255, 110, .5);
     }
 
     .main {
@@ -304,8 +347,8 @@
       min-height: 78px;
       padding: 18px 24px;
       border-bottom: 1px solid var(--line);
-      background: rgba(255, 255, 255, .74);
-      backdrop-filter: blur(16px);
+      background: rgba(9, 10, 15, .72);
+      backdrop-filter: blur(18px);
     }
 
     .chat-title {
@@ -343,26 +386,27 @@
       padding: 10px 12px;
       border-radius: 8px;
       line-height: 1.42;
-      box-shadow: 0 2px 8px rgba(29, 42, 35, .06);
+      border: 1px solid rgba(255, 255, 255, .08);
+      box-shadow: 0 12px 28px rgba(0, 0, 0, .24);
       word-break: break-word;
     }
 
     .bubble.me {
       align-self: flex-end;
-      color: #fff;
-      background: var(--blue);
+      color: #020406;
+      background: linear-gradient(135deg, var(--blue), var(--green));
     }
 
     .bubble.them {
       align-self: flex-start;
-      background: #fff;
+      background: rgba(255, 255, 255, .1);
     }
 
     .bubble.system {
       align-self: center;
       max-width: 520px;
       color: var(--muted);
-      background: rgba(255, 255, 255, .72);
+      background: rgba(255, 255, 255, .07);
       text-align: center;
       box-shadow: none;
     }
@@ -380,8 +424,8 @@
       gap: 10px;
       padding: 16px 24px 22px;
       border-top: 1px solid var(--line);
-      background: rgba(255, 255, 255, .78);
-      backdrop-filter: blur(16px);
+      background: rgba(9, 10, 15, .74);
+      backdrop-filter: blur(18px);
     }
 
     .composer textarea {
@@ -395,7 +439,7 @@
       width: 50px;
       height: 48px;
       border-radius: 8px;
-      color: #fff;
+      color: #020406;
       background: var(--green);
       font-size: 1.1rem;
       font-weight: 900;
@@ -403,12 +447,13 @@
 
     .send-button:disabled {
       cursor: not-allowed;
+      color: #d6dde5;
       background: var(--grey);
     }
 
     dialog {
       width: min(760px, calc(100vw - 28px));
-      border: 0;
+      border: 1px solid var(--line);
       border-radius: 8px;
       padding: 0;
       color: var(--ink);
@@ -417,7 +462,7 @@
     }
 
     dialog::backdrop {
-      background: rgba(20, 27, 23, .36);
+      background: rgba(0, 0, 0, .58);
       backdrop-filter: blur(5px);
     }
 
@@ -445,7 +490,7 @@
       padding: 4px;
       border: 1px solid var(--line);
       border-radius: 8px;
-      background: #f2f5f3;
+      background: rgba(255, 255, 255, .06);
     }
 
     .tab {
@@ -458,8 +503,8 @@
 
     .tab.active {
       color: var(--ink);
-      background: #fff;
-      box-shadow: 0 1px 4px rgba(19, 27, 22, .08);
+      background: rgba(255, 255, 255, .12);
+      box-shadow: 0 1px 8px rgba(166, 236, 255, .12);
     }
 
     .tab-panel {
@@ -481,8 +526,8 @@
       border-left: 4px solid var(--amber);
       padding: 10px 12px;
       border-radius: 6px;
-      color: #5f4423;
-      background: #fff5df;
+      color: #edffc0;
+      background: rgba(203, 255, 110, .08);
       font-size: .88rem;
       line-height: 1.45;
     }
@@ -501,7 +546,8 @@
       padding: 12px 14px;
       border-radius: 8px;
       color: #fff;
-      background: #223128;
+      color: #020406;
+      background: linear-gradient(90deg, var(--blue), var(--green));
       box-shadow: var(--shadow);
       opacity: 0;
       transform: translateY(12px);
@@ -555,10 +601,10 @@
     <aside class="sidebar">
       <section class="profile">
         <div class="brand">
-          <div class="brand-mark">W</div>
+          <div class="brand-mark" aria-hidden="true"></div>
           <div>
-            <h1>WiFi Messages</h1>
-            <p class="small">Private browser-to-browser chat</p>
+            <h1>VOID CHAT</h1>
+            <p class="small">Fast private browser-to-browser chat</p>
           </div>
         </div>
 
@@ -571,7 +617,7 @@
           <label for="myId">Your ID</label>
           <div class="id-row">
             <input id="myId" readonly>
-            <button class="icon-button" id="copyId" title="Copy your ID" aria-label="Copy your ID">⧉</button>
+            <button class="icon-button" id="copyId" title="Copy your ID" aria-label="Copy your ID">ID</button>
           </div>
         </div>
       </section>
@@ -611,7 +657,7 @@
 
       <form class="composer" id="messageForm">
         <textarea id="messageInput" placeholder="Message" disabled></textarea>
-        <button class="send-button" id="sendButton" type="submit" disabled aria-label="Send">↑</button>
+        <button class="send-button" id="sendButton" type="submit" disabled aria-label="Send">GO</button>
       </form>
     </main>
   </div>
@@ -623,7 +669,7 @@
           <h3>Connect over Wi-Fi</h3>
           <p class="small">Exchange one invite code and one answer code. After that, messages move directly between browsers.</p>
         </div>
-        <button class="icon-button" id="closeDialog" title="Close" aria-label="Close">×</button>
+        <button class="icon-button" id="closeDialog" title="Close" aria-label="Close">X</button>
       </div>
 
       <div class="notice">Both people should keep this page open. GitHub Pages is only hosting the app; it is not storing or relaying your messages.</div>
