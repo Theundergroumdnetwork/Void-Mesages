@@ -614,23 +614,25 @@
         </div>
 
         <div class="field">
-          <label for="myId">Your ID</label>
+          <label for="myId">Your VOID ID</label>
           <div class="id-row">
-            <input id="myId" readonly>
+            <input id="myId" placeholder="pick-your-id">
+            <button class="icon-button" id="saveId" title="Save your ID" aria-label="Save your ID">OK</button>
             <button class="icon-button" id="copyId" title="Copy your ID" aria-label="Copy your ID">ID</button>
           </div>
+          <p class="small">Set this once, then give it to friends so they can save you.</p>
         </div>
       </section>
 
       <div class="contacts-head">
-        <h2>Contacts</h2>
+        <h2>Friends</h2>
         <button class="icon-button" id="openConnect" title="Connect" aria-label="Connect">+</button>
       </div>
 
       <form class="contact-form" id="contactForm">
-        <input id="contactName" placeholder="Contact name" required>
-        <input id="contactId" placeholder="Contact ID" required>
-        <button class="secondary" type="submit">Save contact</button>
+        <input id="contactName" placeholder="Friend name" required>
+        <input id="contactId" placeholder="Friend VOID ID" required>
+        <button class="secondary" type="submit">Add friend</button>
       </form>
 
       <div class="contact-list" id="contactList"></div>
@@ -652,7 +654,7 @@
       </header>
 
       <section class="messages" id="messages">
-        <p class="empty">Save a contact or connect with an invite code to start talking.</p>
+        <p class="empty">Add a friend by their VOID ID, then connect to start talking.</p>
       </section>
 
       <form class="composer" id="messageForm">
@@ -666,13 +668,13 @@
     <div class="modal">
       <div class="modal-header">
         <div>
-          <h3>Connect over Wi-Fi</h3>
-          <p class="small">Exchange one invite code and one answer code. After that, messages move directly between browsers.</p>
+          <h3>Connect with a friend</h3>
+          <p class="small">Pick a saved friend, trade one invite and one answer code, then chat directly.</p>
         </div>
         <button class="icon-button" id="closeDialog" title="Close" aria-label="Close">X</button>
       </div>
 
-      <div class="notice">Both people should keep this page open. GitHub Pages is only hosting the app; it is not storing or relaying your messages.</div>
+      <div class="notice">Your VOID ID makes friends easy to save. The invite and answer code are still needed once because this GitHub Pages app has no server.</div>
 
       <div class="tabs">
         <button class="tab active" id="startTab" type="button">Start</button>
@@ -730,6 +732,7 @@
     const els = {
       displayName: $("displayName"),
       myId: $("myId"),
+      saveId: $("saveId"),
       copyId: $("copyId"),
       contactForm: $("contactForm"),
       contactName: $("contactName"),
@@ -775,6 +778,7 @@
         saveState();
       });
 
+      els.saveId.addEventListener("click", saveProfileId);
       els.copyId.addEventListener("click", () => copyText(state.profile.id, "ID copied"));
       els.contactForm.addEventListener("submit", saveContactFromForm);
       els.openConnect.addEventListener("click", openConnectDialog);
@@ -823,9 +827,14 @@
 
     function freshProfile() {
       return {
-        id: "wm-" + crypto.getRandomValues(new Uint32Array(2)).join("").slice(0, 12),
+        id: makeId("void"),
         name: "Me"
       };
+    }
+
+    function makeId(prefix) {
+      const chunk = crypto.getRandomValues(new Uint32Array(1))[0].toString(36).slice(0, 6);
+      return `${prefix}-${chunk}`;
     }
 
     function saveState() {
@@ -833,9 +842,37 @@
       localStorage.setItem(storageKey, JSON.stringify(state));
     }
 
+    function saveProfileId() {
+      const nextId = cleanVoidId(els.myId.value);
+      if (!nextId) {
+        els.myId.value = state.profile.id;
+        toast("Use letters, numbers, dash, or underscore");
+        return;
+      }
+
+      if (state.contacts[nextId]) {
+        els.myId.value = state.profile.id;
+        toast("That ID is already a friend");
+        return;
+      }
+
+      if (nextId === state.profile.id) {
+        els.myId.value = state.profile.id;
+        toast("ID saved");
+        return;
+      }
+
+      for (const id of Array.from(peers.keys())) closePeer(id);
+      state.profile.id = nextId;
+      els.myId.value = nextId;
+      saveState();
+      render();
+      toast("VOID ID saved");
+    }
+
     function saveContactFromForm(event) {
       event.preventDefault();
-      const id = normalizeId(els.contactId.value);
+      const id = cleanVoidId(els.contactId.value);
       const name = els.contactName.value.trim();
       if (!id || !name) return;
       upsertContact({ id, name });
@@ -861,6 +898,12 @@
       return String(value || "").trim();
     }
 
+    function cleanVoidId(value) {
+      const id = normalizeId(value).toLowerCase().replace(/\s+/g, "-");
+      if (!/^[a-z0-9_-]{3,24}$/.test(id)) return "";
+      return id;
+    }
+
     function render() {
       renderContacts();
       renderChat();
@@ -874,7 +917,7 @@
         const empty = document.createElement("p");
         empty.className = "small";
         empty.style.padding = "8px";
-        empty.textContent = "No contacts yet.";
+        empty.textContent = "No friends yet.";
         els.contactList.append(empty);
         return;
       }
@@ -924,7 +967,7 @@
       if (!contact) {
         els.chatName.textContent = "Pick a contact";
         els.chatStatus.textContent = "Saved chats stay on this device.";
-        els.messages.innerHTML = '<p class="empty">Save a contact or connect with an invite code to start talking.</p>';
+        els.messages.innerHTML = '<p class="empty">Add a friend by their VOID ID, then connect to start talking.</p>';
         return;
       }
 
@@ -993,7 +1036,7 @@
 
     async function createInvite() {
       if (!selectedId || !state.contacts[selectedId]) {
-        toast("Pick or save a contact first");
+        toast("Pick or add a friend first");
         return;
       }
 
@@ -1202,52 +1245,4 @@
       closePeer(selectedId);
       delete state.contacts[selectedId];
       delete state.messages[selectedId];
-      selectedId = Object.keys(state.contacts)[0] || "";
-      saveState();
-      render();
-      toast("Contact deleted");
-    }
-
-    function publicProfile() {
-      return {
-        id: state.profile.id,
-        name: state.profile.name || "Me"
-      };
-    }
-
-    function pack(value) {
-      return btoa(String.fromCharCode(...new TextEncoder().encode(JSON.stringify(value))))
-        .replace(/\+/g, "-")
-        .replace(/\//g, "_")
-        .replace(/=+$/g, "");
-    }
-
-    function unpack(value) {
-      try {
-        const normalized = String(value || "").trim().replace(/-/g, "+").replace(/_/g, "/");
-        const padded = normalized + "=".repeat((4 - normalized.length % 4) % 4);
-        const bytes = Uint8Array.from(atob(padded), (char) => char.charCodeAt(0));
-        return JSON.parse(new TextDecoder().decode(bytes));
-      } catch {
-        return null;
-      }
-    }
-
-    async function copyText(text, success) {
-      if (!text) {
-        toast("Nothing to copy yet");
-        return;
-      }
-      await navigator.clipboard.writeText(text);
-      toast(success);
-    }
-
-    function toast(message) {
-      els.toast.textContent = message;
-      els.toast.classList.add("show");
-      clearTimeout(toast.timer);
-      toast.timer = setTimeout(() => els.toast.classList.remove("show"), 2200);
-    }
-  </script>
-</body>
-</html>
+      selectedId = Object.keys(state.cont
