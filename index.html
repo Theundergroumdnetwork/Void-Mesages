@@ -532,6 +532,18 @@
       line-height: 1.45;
     }
 
+    .steps {
+      display: grid;
+      gap: 8px;
+      color: var(--muted);
+      font-size: .9rem;
+      line-height: 1.45;
+    }
+
+    .steps strong {
+      color: var(--ink);
+    }
+
     .actions {
       display: flex;
       flex-wrap: wrap;
@@ -648,7 +660,7 @@
           </div>
         </div>
         <div class="header-actions">
-          <button class="secondary" id="connectSelected">Connect</button>
+          <button class="secondary" id="connectSelected">Go online</button>
           <button class="danger" id="deleteContact">Delete</button>
         </div>
       </header>
@@ -668,51 +680,59 @@
     <div class="modal">
       <div class="modal-header">
         <div>
-          <h3>Connect with a friend</h3>
-          <p class="small">Pick a saved friend, trade one invite and one answer code, then chat directly.</p>
+          <h3>Go online with a friend</h3>
+          <p class="small">The green dot appears after both browsers finish this one-time link.</p>
         </div>
         <button class="icon-button" id="closeDialog" title="Close" aria-label="Close">X</button>
       </div>
 
-      <div class="notice">Your VOID ID makes friends easy to save. The invite and answer code are still needed once because this GitHub Pages app has no server.</div>
+      <div class="notice">VOID CHAT has no server, so it cannot check who is online from an ID alone. The dot turns green only after your browsers connect directly.</div>
 
       <div class="tabs">
-        <button class="tab active" id="startTab" type="button">Start</button>
-        <button class="tab" id="joinTab" type="button">Join</button>
+        <button class="tab active" id="startTab" type="button">I start</button>
+        <button class="tab" id="joinTab" type="button">I join</button>
       </div>
 
       <section class="tab-panel active" id="startPanel">
-        <div class="field">
-          <label for="inviteCode">Invite code to send</label>
-          <textarea id="inviteCode" class="code-box" readonly placeholder="Create an invite, then send this code to your contact."></textarea>
-        </div>
-        <div class="actions">
-          <button class="primary" id="createInvite" type="button">Create invite</button>
-          <button class="secondary" id="copyInvite" type="button">Copy invite</button>
+        <div class="steps">
+          <p><strong>1.</strong> Make a friend code and send it to them.</p>
+          <p><strong>2.</strong> Paste their reply code below.</p>
         </div>
         <div class="field">
-          <label for="answerCode">Answer code from your contact</label>
-          <textarea id="answerCode" class="code-box" placeholder="Paste the answer code here."></textarea>
+          <label for="inviteCode">Friend code to send</label>
+          <textarea id="inviteCode" class="code-box" readonly placeholder="Make a friend code, then send it to your friend."></textarea>
         </div>
         <div class="actions">
-          <button class="primary" id="acceptAnswer" type="button">Connect with answer</button>
+          <button class="primary" id="createInvite" type="button">Make friend code</button>
+          <button class="secondary" id="copyInvite" type="button">Copy code</button>
+        </div>
+        <div class="field">
+          <label for="answerCode">Reply code from your friend</label>
+          <textarea id="answerCode" class="code-box" placeholder="Paste their reply code here."></textarea>
+        </div>
+        <div class="actions">
+          <button class="primary" id="acceptAnswer" type="button">Go online</button>
         </div>
       </section>
 
       <section class="tab-panel" id="joinPanel">
-        <div class="field">
-          <label for="incomingInvite">Invite code you received</label>
-          <textarea id="incomingInvite" class="code-box" placeholder="Paste your friend's invite code here."></textarea>
-        </div>
-        <div class="actions">
-          <button class="primary" id="makeAnswer" type="button">Make answer</button>
+        <div class="steps">
+          <p><strong>1.</strong> Paste the friend code they sent you.</p>
+          <p><strong>2.</strong> Make a reply code and send it back.</p>
         </div>
         <div class="field">
-          <label for="outgoingAnswer">Answer code to send back</label>
-          <textarea id="outgoingAnswer" class="code-box" readonly placeholder="Send this answer code back to finish connecting."></textarea>
+          <label for="incomingInvite">Friend code you received</label>
+          <textarea id="incomingInvite" class="code-box" placeholder="Paste your friend's code here."></textarea>
         </div>
         <div class="actions">
-          <button class="secondary" id="copyAnswer" type="button">Copy answer</button>
+          <button class="primary" id="makeAnswer" type="button">Make reply code</button>
+        </div>
+        <div class="field">
+          <label for="outgoingAnswer">Reply code to send back</label>
+          <textarea id="outgoingAnswer" class="code-box" readonly placeholder="Send this reply code back to finish connecting."></textarea>
+        </div>
+        <div class="actions">
+          <button class="secondary" id="copyAnswer" type="button">Copy reply</button>
         </div>
       </section>
     </div>
@@ -789,10 +809,10 @@
       els.startTab.addEventListener("click", () => setTab("start"));
       els.joinTab.addEventListener("click", () => setTab("join"));
       els.createInvite.addEventListener("click", createInvite);
-      els.copyInvite.addEventListener("click", () => copyText(els.inviteCode.value, "Invite copied"));
+      els.copyInvite.addEventListener("click", () => copyText(els.inviteCode.value, "Friend code copied"));
       els.acceptAnswer.addEventListener("click", acceptAnswer);
       els.makeAnswer.addEventListener("click", makeAnswer);
-      els.copyAnswer.addEventListener("click", () => copyText(els.outgoingAnswer.value, "Answer copied"));
+      els.copyAnswer.addEventListener("click", () => copyText(els.outgoingAnswer.value, "Reply code copied"));
       els.messageInput.addEventListener("keydown", (event) => {
         if (event.key === "Enter" && !event.shiftKey) {
           event.preventDefault();
@@ -955,7 +975,7 @@
 
         const dot = document.createElement("span");
         dot.className = "dot" + (isOnline(contact.id) ? " online" : "");
-        dot.title = isOnline(contact.id) ? "Online" : "Offline";
+        dot.title = isOnline(contact.id) ? "Online" : "Not connected yet";
 
         button.append(avatar, main, dot);
         els.contactList.append(button);
@@ -973,13 +993,13 @@
 
       if (!contact) {
         els.chatName.textContent = "Pick a contact";
-        els.chatStatus.textContent = "Saved chats stay on this device.";
+        els.chatStatus.textContent = "Add a friend, then go online together.";
         els.messages.innerHTML = '<p class="empty">Add a friend by their VOID ID, then connect to start talking.</p>';
         return;
       }
 
       els.chatName.textContent = contact.name;
-      els.chatStatus.textContent = online ? "Online now" : "Offline";
+      els.chatStatus.textContent = online ? "Online now" : "Not connected yet";
 
       const history = state.messages[selectedId] || [];
       els.messages.innerHTML = "";
@@ -1065,18 +1085,18 @@
         to: selectedId,
         description: pc.localDescription
       });
-      toast("Invite ready");
+      copyText(els.inviteCode.value, "Friend code copied");
     }
 
     async function acceptAnswer() {
       if (!pendingStartPeer) {
-        toast("Create an invite first");
+        toast("Make a friend code first");
         return;
       }
 
       const payload = unpack(els.answerCode.value);
       if (!payload || payload.kind !== "answer") {
-        toast("That answer code is not valid");
+        toast("That reply code is not valid");
         return;
       }
 
@@ -1086,14 +1106,14 @@
       addSystem(selectedId, "Connected");
       saveState();
       render();
-      toast("Connected");
+      toast("Online now");
       els.connectDialog.close();
     }
 
     async function makeAnswer() {
       const payload = unpack(els.incomingInvite.value);
       if (!payload || payload.kind !== "offer" || !payload.from?.id) {
-        toast("That invite code is not valid");
+        toast("That friend code is not valid");
         return;
       }
 
@@ -1117,10 +1137,10 @@
         to: payload.from.id,
         description: pc.localDescription
       });
-      addSystem(selectedId, "Answer created. Send it back to finish connecting.");
+      addSystem(selectedId, "Reply code made. Send it back to go online.");
       saveState();
       render();
-      toast("Answer ready");
+      copyText(els.outgoingAnswer.value, "Reply code copied");
     }
 
     function createPeerConnection(contactId) {
